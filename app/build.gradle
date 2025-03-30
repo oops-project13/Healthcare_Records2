@@ -4,6 +4,7 @@ plugins {
 
 android {
     compileSdkVersion 33
+    namespace "com.healthcare.records"
     
     defaultConfig {
         applicationId "com.healthcare.records"
@@ -23,8 +24,8 @@ android {
     }
     
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
 }
 
