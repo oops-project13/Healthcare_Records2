@@ -8,7 +8,7 @@ android {
     
     defaultConfig {
         applicationId "com.healthcare.records"
-        minSdkVersion 21
+        minSdkVersion 26  // Increased to 26 to support adaptive icons
         targetSdkVersion 33
         versionCode 1
         versionName "1.0"
@@ -40,7 +40,18 @@ dependencies {
     implementation 'androidx.room:room-runtime:2.5.1'
     annotationProcessor 'androidx.room:room-compiler:2.5.1'
     
+    // Explicit Kotlin version to avoid conflicts
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.10"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.10"
+    
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    
+    // Force consistent Kotlin versions
+    configurations.all {
+        resolutionStrategy.force "org.jetbrains.kotlin:kotlin-stdlib:1.8.10"
+        resolutionStrategy.force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.10"
+        resolutionStrategy.force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.10"
+    }
 }
