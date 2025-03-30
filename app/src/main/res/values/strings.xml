@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">Healthcare Records</string>
+    <string name="app_tagline">Secure Patient Record Management</string>
+    
+    <!-- Login and Signup -->
+    <string name="login_title">Welcome Back</string>
+    <string name="login_subtitle">Login to access your healthcare records</string>
+    <string name="aadhar_number">Aadhar Number</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="signup_prompt">Don\'t have an account? Sign Up</string>
+    
+    <string name="signup_title">Create Account</string>
+    <string name="signup_subtitle">Sign up to manage healthcare records</string>
+    <string name="full_name">Full Name</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="user_type">User Type</string>
+    <string name="patient">Patient</string>
+    <string name="hospital">Hospital</string>
+    <string name="signup">Sign Up</string>
+    <string name="login_prompt">Already have an account? Login</string>
+    
+    <!-- Dashboard -->
+    <string name="all_patient_records">All Patient Records</string>
+    <string name="your_records">Your Medical Records</string>
+    <string name="no_records_found">No records found</string>
+    <string name="add_record">Add Record</string>
+    <string name="logout">Logout</string>
+    
+    <!-- Record Operations -->
+    <string name="add_patient_record">Add Patient Record</string>
+    <string name="patient_aadhar_number">Patient Aadhar Number</string>
+    <string name="diagnosis">Diagnosis</string>
+    <string name="prescription">Prescription</string>
+    <string name="notes_optional">Notes (Optional)</string>
+    <string name="save_record">Save Record</string>
+    <string name="record_details">Record Details</string>
+    <string name="notes">Notes</string>
+    <string name="edit_record">Edit Record</string>
+    <string name="update_record">Update Record</string>
+    <string name="patient_colon">Patient:</string>
+    <string name="hospital_colon">Hospital:</string>
+    
+    <!-- Error Messages -->
+    <string name="error_invalid_aadhar">Invalid Aadhar number</string>
+    <string name="error_fields_required">Please fill all required fields</string>
+    <string name="error_patient_not_found">No patient found with this Aadhar number</string>
+</resources>
