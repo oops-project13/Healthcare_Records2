@@ -12,6 +12,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.healthcare.records.database.AppDatabase;
 import com.healthcare.records.database.entity.User;
 
@@ -21,7 +22,8 @@ import com.healthcare.records.database.entity.User;
  */
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText etAadharId, etPassword;
+    private EditText etIdentifier, etPassword;
+    private TextInputLayout tilIdentifier;
     private Button btnLogin;
     private TextView tvSignup;
     private ProgressBar progressBar;
@@ -36,11 +38,15 @@ public class LoginActivity extends AppCompatActivity {
         database = AppDatabase.getInstance(getApplicationContext());
 
         // Initialize UI components
-        etAadharId = findViewById(R.id.etAadharId);
+        etIdentifier = findViewById(R.id.etAadharId); // We'll keep the ID to avoid breaking layouts
+        tilIdentifier = findViewById(R.id.tilAadharId);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
         tvSignup = findViewById(R.id.tvSignup);
         progressBar = findViewById(R.id.progressBar);
+        
+        // Update the hint to be more generic
+        tilIdentifier.setHint("Aadhar/NIN Number");
 
         // Check if user is already logged in
         checkLoginStatus();
@@ -72,11 +78,11 @@ public class LoginActivity extends AppCompatActivity {
      * Attempts to login the user with provided credentials
      */
     private void attemptLogin() {
-        String aadharId = etAadharId.getText().toString().trim();
+        String identifier = etIdentifier.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
 
         // Validate input
-        if (aadharId.isEmpty() || password.isEmpty()) {
+        if (identifier.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -85,7 +91,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // Execute login on a background thread
         new Thread(() -> {
-            final User user = database.userDao().getUserByAadharAndPassword(aadharId, password);
+            final User user = database.userDao().getUserByIdentifierAndPassword(identifier, password);
             
             runOnUiThread(() -> {
                 progressBar.setVisibility(View.GONE);
@@ -111,7 +117,7 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("user_id", user.getUserId());
         editor.putString("user_role", user.getRole());
-        editor.putString("aadhar_id", user.getAadharId());
+        editor.putString("identifier", user.getIdentifier());
         editor.putString("user_name", user.getName());
         editor.apply();
     }

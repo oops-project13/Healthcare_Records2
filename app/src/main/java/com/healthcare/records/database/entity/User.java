@@ -6,7 +6,9 @@ import androidx.room.PrimaryKey;
 
 /**
  * Entity class representing a user in the system.
- * Can be either a patient or hospital staff member.
+ * Can be either a patient (with Aadhar) or hospital staff member (with NIN).
+ * The identifier field contains either an Aadhar number (for patients) or
+ * a NIN number (for hospitals) depending on the role.
  */
 @Entity(tableName = "users")
 public class User {
@@ -15,17 +17,17 @@ public class User {
     @NonNull
     private String userId;
     private String name;
-    private String aadharId;
+    private String identifier; // Aadhar for patients, NIN for hospitals
     private String password;
     private String role; // "patient" or "hospital"
 
     /**
      * Constructor for creating a new user
      */
-    public User(@NonNull String userId, String name, String aadharId, String password, String role) {
+    public User(@NonNull String userId, String name, String identifier, String password, String role) {
         this.userId = userId;
         this.name = name;
-        this.aadharId = aadharId;
+        this.identifier = identifier;
         this.password = password;
         this.role = role;
     }
@@ -60,17 +62,35 @@ public class User {
     }
 
     /**
-     * Get the user's Aadhar ID
+     * Get the user's identifier (Aadhar for patients, NIN for hospitals)
      */
-    public String getAadharId() {
-        return aadharId;
+    public String getIdentifier() {
+        return identifier;
     }
 
     /**
-     * Set the user's Aadhar ID
+     * Set the user's identifier (Aadhar for patients, NIN for hospitals)
      */
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+    /**
+     * Get the user's Aadhar ID (for backwards compatibility)
+     * @deprecated Use getIdentifier() instead
+     */
+    @Deprecated
+    public String getAadharId() {
+        return identifier;
+    }
+
+    /**
+     * Set the user's Aadhar ID (for backwards compatibility)
+     * @deprecated Use setIdentifier() instead
+     */
+    @Deprecated
     public void setAadharId(String aadharId) {
-        this.aadharId = aadharId;
+        this.identifier = aadharId;
     }
 
     /**

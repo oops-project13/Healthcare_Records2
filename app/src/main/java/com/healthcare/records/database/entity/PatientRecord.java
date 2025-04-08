@@ -21,13 +21,22 @@ public class PatientRecord {
     private String prescription;
     private String notes;
     private String date;
+    private String doctorContactNumber; // Doctor's phone number
+    private String imagePath; // Path to stored medical image
+    private int severityScore; // Severity score (1-10)
+    private String doctorName; // Doctor's name
+    private String doctorAvailability; // Doctor's available timings
+    private int imageRotation; // Image rotation angle in degrees
+    private String appointmentDate; // Appointment date and time (if scheduled)
 
     /**
-     * Constructor for creating a new patient record
+     * Constructor for creating a new patient record with all fields
      */
     public PatientRecord(@NonNull String recordId, String patientId, String patientName,
                          String hospitalId, String hospitalName, String diagnosis,
-                         String prescription, String notes, String date) {
+                         String prescription, String notes, String date,
+                         String doctorContactNumber, String imagePath, int severityScore,
+                         String doctorName, String doctorAvailability, int imageRotation) {
         this.recordId = recordId;
         this.patientId = patientId;
         this.patientName = patientName;
@@ -37,6 +46,36 @@ public class PatientRecord {
         this.prescription = prescription;
         this.notes = notes;
         this.date = date;
+        this.doctorContactNumber = doctorContactNumber;
+        this.imagePath = imagePath;
+        this.severityScore = severityScore;
+        this.doctorName = doctorName;
+        this.doctorAvailability = doctorAvailability;
+        this.imageRotation = imageRotation;
+        this.appointmentDate = "";
+    }
+
+    /**
+     * Constructor for creating a new patient record with doctor's contact and image
+     */
+    @androidx.room.Ignore
+    public PatientRecord(@NonNull String recordId, String patientId, String patientName,
+                         String hospitalId, String hospitalName, String diagnosis,
+                         String prescription, String notes, String date,
+                         String doctorContactNumber, String imagePath) {
+        this(recordId, patientId, patientName, hospitalId, hospitalName, diagnosis,
+             prescription, notes, date, doctorContactNumber, imagePath, 1, "", "", 0);
+    }
+
+    /**
+     * Constructor for creating a new patient record (backward compatibility)
+     */
+    @androidx.room.Ignore
+    public PatientRecord(@NonNull String recordId, String patientId, String patientName,
+                         String hospitalId, String hospitalName, String diagnosis,
+                         String prescription, String notes, String date) {
+        this(recordId, patientId, patientName, hospitalId, hospitalName, diagnosis,
+             prescription, notes, date, "", "", 1, "", "", 0);
     }
 
     /**
@@ -164,5 +203,121 @@ public class PatientRecord {
      */
     public void setDate(String date) {
         this.date = date;
+    }
+    
+    /**
+     * Get the doctor's contact number
+     */
+    public String getDoctorContactNumber() {
+        return doctorContactNumber;
+    }
+
+    /**
+     * Set the doctor's contact number
+     */
+    public void setDoctorContactNumber(String doctorContactNumber) {
+        this.doctorContactNumber = doctorContactNumber;
+    }
+
+    /**
+     * Get the path to the stored medical image
+     */
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    /**
+     * Set the path to the stored medical image
+     */
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
+    
+    /**
+     * Get the severity score (1-10)
+     */
+    public int getSeverityScore() {
+        return severityScore;
+    }
+    
+    /**
+     * Set the severity score (1-10)
+     */
+    public void setSeverityScore(int severityScore) {
+        // Ensure score is between 1-10
+        if (severityScore < 1) {
+            this.severityScore = 1;
+        } else if (severityScore > 10) {
+            this.severityScore = 10;
+        } else {
+            this.severityScore = severityScore;
+        }
+    }
+    
+    /**
+     * Get the doctor's name
+     */
+    public String getDoctorName() {
+        return doctorName;
+    }
+    
+    /**
+     * Set the doctor's name
+     */
+    public void setDoctorName(String doctorName) {
+        this.doctorName = doctorName;
+    }
+    
+    /**
+     * Get the doctor's available timings
+     */
+    public String getDoctorAvailability() {
+        return doctorAvailability;
+    }
+    
+    /**
+     * Set the doctor's available timings
+     */
+    public void setDoctorAvailability(String doctorAvailability) {
+        this.doctorAvailability = doctorAvailability;
+    }
+    
+    /**
+     * Get the image rotation angle
+     */
+    public int getImageRotation() {
+        return imageRotation;
+    }
+    
+    /**
+     * Set the image rotation angle
+     */
+    public void setImageRotation(int imageRotation) {
+        // Normalize the rotation angle to be between 0-359
+        this.imageRotation = imageRotation % 360;
+        if (this.imageRotation < 0) {
+            this.imageRotation += 360;
+        }
+    }
+    
+    /**
+     * Get the appointment date
+     */
+    public String getAppointmentDate() {
+        return appointmentDate;
+    }
+    
+    /**
+     * Set the appointment date
+     */
+    public void setAppointmentDate(String appointmentDate) {
+        this.appointmentDate = appointmentDate;
+    }
+    
+    /**
+     * Check if record has an appointment scheduled
+     */
+    public boolean hasAppointment() {
+        return appointmentDate != null && !appointmentDate.isEmpty();
     }
 }

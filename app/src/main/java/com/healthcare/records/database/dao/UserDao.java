@@ -35,15 +35,31 @@ public interface UserDao {
     User getUserById(String userId);
 
     /**
-     * Get user by Aadhar ID
+     * Get user by identifier (Aadhar for patients, NIN for hospitals)
      */
-    @Query("SELECT * FROM users WHERE aadharId = :aadharId")
+    @Query("SELECT * FROM users WHERE identifier = :identifier")
+    User getUserByIdentifier(String identifier);
+
+    /**
+     * Get user by Aadhar ID (for backward compatibility)
+     * @deprecated Use getUserByIdentifier instead
+     */
+    @Deprecated
+    @Query("SELECT * FROM users WHERE identifier = :aadharId")
     User getUserByAadhar(String aadharId);
 
     /**
-     * Get user by Aadhar ID and password for authentication
+     * Get user by identifier and password for authentication
      */
-    @Query("SELECT * FROM users WHERE aadharId = :aadharId AND password = :password")
+    @Query("SELECT * FROM users WHERE identifier = :identifier AND password = :password")
+    User getUserByIdentifierAndPassword(String identifier, String password);
+
+    /**
+     * Get user by Aadhar ID and password for authentication (for backward compatibility)
+     * @deprecated Use getUserByIdentifierAndPassword instead
+     */
+    @Deprecated
+    @Query("SELECT * FROM users WHERE identifier = :aadharId AND password = :password")
     User getUserByAadharAndPassword(String aadharId, String password);
 
     /**

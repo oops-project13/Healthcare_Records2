@@ -2,15 +2,23 @@ package com.healthcare.records;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.healthcare.records.database.AppDatabase;
 import com.healthcare.records.database.entity.PatientRecord;
+
+import java.io.File;
 
 /**
  * Activity for patients to view their medical record details.
@@ -19,7 +27,9 @@ import com.healthcare.records.database.entity.PatientRecord;
 public class ViewRecordActivity extends AppCompatActivity {
 
     private TextView tvPatientName, tvHospitalName, tvDiagnosis, tvPrescription, tvNotes, tvDate;
-    private ProgressBar progressBar;
+    private TextView tvDoctorContact, tvDoctorName, tvDoctorAvailability, tvSeverityScore;
+    private ImageView ivRecordImage;
+    private ProgressBar progressBar, pbSeverity;
     private AppDatabase database;
     private String recordId;
 
@@ -50,7 +60,13 @@ public class ViewRecordActivity extends AppCompatActivity {
         tvPrescription = findViewById(R.id.tvPrescription);
         tvNotes = findViewById(R.id.tvNotes);
         tvDate = findViewById(R.id.tvDate);
+        tvDoctorContact = findViewById(R.id.tvDoctorContact);
+        tvDoctorName = findViewById(R.id.tvDoctorName);
+        tvDoctorAvailability = findViewById(R.id.tvDoctorAvailability);
+        tvSeverityScore = findViewById(R.id.tvSeverityScore);
+        ivRecordImage = findViewById(R.id.ivRecordImage);
         progressBar = findViewById(R.id.progressBar);
+        pbSeverity = findViewById(R.id.pbSeverity);
 
         // Load record data
         loadRecordData();
@@ -62,26 +78,75 @@ public class ViewRecordActivity extends AppCompatActivity {
     private void loadRecordData() {
         progressBar.setVisibility(View.VISIBLE);
 
-        new Thread(() -> {
-            final PatientRecord record = database.patientRecordDao().getRecordById(recordId);
+        final PatientRecord record = database.patientRecordDao().getRecordById(recordId);
+        
+        progressBar.setVisibility(View.GONE);
+        
+        if (record != null) {
+            // Display record data
+            tvPatientName.setText(record.getPatientName());
+            tvHospitalName.setText(record.getHospitalName());
+            tvDiagnosis.setText(record.getDiagnosis());
+            tvPrescription.setText(record.getPrescription().isEmpty() ? "None" : record.getPrescription());
+            tvNotes.setText(record.getNotes().isEmpty() ? "None" : record.getNotes());
+            tvDate.setText(record.getDate());
             
-            runOnUiThread(() -> {
-                progressBar.setVisibility(View.GONE);
-                
-                if (record != null) {
-                    // Display record data
-                    tvPatientName.setText(record.getPatientName());
-                    tvHospitalName.setText(record.getHospitalName());
-                    tvDiagnosis.setText(record.getDiagnosis());
-                    tvPrescription.setText(record.getPrescription().isEmpty() ? "None" : record.getPrescription());
-                    tvNotes.setText(record.getNotes().isEmpty() ? "None" : record.getNotes());
-                    tvDate.setText(record.getDate());
-                } else {
-                    Toast.makeText(ViewRecordActivity.this, "Error: Record not found", Toast.LENGTH_SHORT).show();
-                    finish();
+            // Display doctor's contact information
+            String doctorContact = record.getDoctorContactNumber();
+            tvDoctorContact.setText(doctorContact != null && !doctorContact.isEmpty() ? doctorContact : "Not available");
+            
+            // Display doctor's name if available
+            String doctorName = record.getDoctorName();
+            tvDoctorName.setText(doctorName != null && !doctorName.isEmpty() ? doctorName : "Not available");
+            
+            // Display doctor's availability if available
+            String doctorAvailability = record.getDoctorAvailability();
+            tvDoctorAvailability.setText(doctorAvailability != null && !doctorAvailability.isEmpty() ? 
+                    doctorAvailability : "Not available");
+            
+            // Display severity score
+            int severityScore = record.getSeverityScore();
+            tvSeverityScore.setText(String.valueOf(severityScore));
+            
+            // Set progress and color for severity bar
+            pbSeverity.setProgress(severityScore);
+            
+            // Change color based on severity
+            if (severityScore <= 3) {
+                pbSeverity.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#4CAF50"))); // Green
+            } else if (severityScore <= 7) {
+                pbSeverity.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#FFC107"))); // Yellow
+            } else {
+                pbSeverity.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#F44336"))); // Red
+            }
+            
+            // Display image if available
+            String imagePath = record.getImagePath();
+            if (imagePath != null && !imagePath.isEmpty()) {
+                File imageFile = new File(imagePath);
+                if (imageFile.exists()) {
+                    Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+                    if (bitmap != null) {
+                        // Apply rotation if needed
+                        int imageRotation = record.getImageRotation();
+                        if (imageRotation != 0) {
+                            Matrix matrix = new Matrix();
+                            matrix.postRotate(imageRotation);
+                            Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, 
+                                    bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                            ivRecordImage.setImageBitmap(rotatedBitmap);
+                        } else {
+                            ivRecordImage.setImageBitmap(bitmap);
+                        }
+                        
+                        ivRecordImage.setVisibility(View.VISIBLE);
+                    }
                 }
-            });
-        }).start();
+            }
+        } else {
+            Toast.makeText(ViewRecordActivity.this, "Error: Record not found", Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 
     @Override
