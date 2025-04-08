@@ -349,82 +349,105 @@ public class EditRecordActivity extends AppCompatActivity {
     private void loadRecordData() {
         progressBar.setVisibility(View.VISIBLE);
 
-        currentRecord = database.patientRecordDao().getRecordById(recordId);
-        
-        progressBar.setVisibility(View.GONE);
-        
-        if (currentRecord != null) {
-            // Display record data
-            tvPatientName.setText(currentRecord.getPatientName());
-            tvHospitalName.setText(currentRecord.getHospitalName());
-            tvDate.setText(currentRecord.getDate());
-            etDiagnosis.setText(currentRecord.getDiagnosis());
-            etPrescription.setText(currentRecord.getPrescription());
-            etNotes.setText(currentRecord.getNotes());
-            
-            // Display doctor's contact if available
-            String doctorContact = currentRecord.getDoctorContactNumber();
-            if (doctorContact != null && !doctorContact.isEmpty()) {
-                etDoctorContact.setText(doctorContact);
-            }
-            
-            // Display doctor's name if available
-            String doctorName = currentRecord.getDoctorName();
-            if (doctorName != null && !doctorName.isEmpty()) {
-                etDoctorName.setText(doctorName);
-            }
-            
-            // Display doctor's availability if available
-            String doctorAvailability = currentRecord.getDoctorAvailability();
-            if (doctorAvailability != null && !doctorAvailability.isEmpty()) {
-                etDoctorAvailability.setText(doctorAvailability);
-            }
-            
-            // Set severity score
-            severityScore = currentRecord.getSeverityScore();
-            sbSeverity.setProgress(severityScore - 1); // SeekBar is 0-9, score is 1-10
-            tvSeverityValue.setText(String.valueOf(severityScore));
-            pbSeverity.setProgress(severityScore);
-            
-            // Set color based on severity
-            if (severityScore <= 3) {
-                pbSeverity.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#4CAF50"))); // Green
-            } else if (severityScore <= 7) {
-                pbSeverity.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#FFC107"))); // Yellow
-            } else {
-                pbSeverity.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#F44336"))); // Red
-            }
-            
-            // Display existing image if available
-            String imagePath = currentRecord.getImagePath();
-            if (imagePath != null && !imagePath.isEmpty()) {
-                File imageFile = new File(imagePath);
-                if (imageFile.exists()) {
-                    currentImageBitmap = BitmapFactory.decodeFile(imagePath);
-                    if (currentImageBitmap != null) {
-                        // Apply rotation if needed
-                        imageRotation = currentRecord.getImageRotation();
-                        if (imageRotation != 0) {
-                            Matrix matrix = new Matrix();
-                            matrix.postRotate(imageRotation);
-                            Bitmap rotatedBitmap = Bitmap.createBitmap(currentImageBitmap, 0, 0, 
-                                    currentImageBitmap.getWidth(), currentImageBitmap.getHeight(), matrix, true);
-                            ivRecordImage.setImageBitmap(rotatedBitmap);
-                        } else {
-                            ivRecordImage.setImageBitmap(currentImageBitmap);
+        // Use a background thread for database operations
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final PatientRecord record = database.patientRecordDao().getRecordById(recordId);
+                    
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
+                            
+                            if (record != null) {
+                                currentRecord = record;
+                                // Display record data
+                                tvPatientName.setText(record.getPatientName());
+                                tvHospitalName.setText(record.getHospitalName());
+                                tvDate.setText(record.getDate());
+                                etDiagnosis.setText(record.getDiagnosis());
+                                etPrescription.setText(record.getPrescription());
+                                etNotes.setText(record.getNotes());
+                                
+                                // Display doctor's contact if available
+                                String doctorContact = record.getDoctorContactNumber();
+                                if (doctorContact != null && !doctorContact.isEmpty()) {
+                                    etDoctorContact.setText(doctorContact);
+                                }
+                                
+                                // Display doctor's name if available
+                                String doctorName = record.getDoctorName();
+                                if (doctorName != null && !doctorName.isEmpty()) {
+                                    etDoctorName.setText(doctorName);
+                                }
+                                
+                                // Display doctor's availability if available
+                                String doctorAvailability = record.getDoctorAvailability();
+                                if (doctorAvailability != null && !doctorAvailability.isEmpty()) {
+                                    etDoctorAvailability.setText(doctorAvailability);
+                                }
+                                
+                                // Set severity score
+                                severityScore = record.getSeverityScore();
+                                sbSeverity.setProgress(severityScore - 1); // SeekBar is 0-9, score is 1-10
+                                tvSeverityValue.setText(String.valueOf(severityScore));
+                                pbSeverity.setProgress(severityScore);
+                                
+                                // Set color based on severity
+                                if (severityScore <= 3) {
+                                    pbSeverity.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#4CAF50"))); // Green
+                                } else if (severityScore <= 7) {
+                                    pbSeverity.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#FFC107"))); // Yellow
+                                } else {
+                                    pbSeverity.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#F44336"))); // Red
+                                }
+                                
+                                // Display existing image if available
+                                String imagePath = record.getImagePath();
+                                if (imagePath != null && !imagePath.isEmpty()) {
+                                    File imageFile = new File(imagePath);
+                                    if (imageFile.exists()) {
+                                        currentImageBitmap = BitmapFactory.decodeFile(imagePath);
+                                        if (currentImageBitmap != null) {
+                                            // Apply rotation if needed
+                                            imageRotation = record.getImageRotation();
+                                            if (imageRotation != 0) {
+                                                Matrix matrix = new Matrix();
+                                                matrix.postRotate(imageRotation);
+                                                Bitmap rotatedBitmap = Bitmap.createBitmap(currentImageBitmap, 0, 0, 
+                                                        currentImageBitmap.getWidth(), currentImageBitmap.getHeight(), matrix, true);
+                                                ivRecordImage.setImageBitmap(rotatedBitmap);
+                                            } else {
+                                                ivRecordImage.setImageBitmap(currentImageBitmap);
+                                            }
+                                            
+                                            ivRecordImage.setVisibility(View.VISIBLE);
+                                            layoutImageRotation.setVisibility(View.VISIBLE);
+                                            // Keep track of the original image path
+                                            currentPhotoPath = imagePath;
+                                        }
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(EditRecordActivity.this, "Error: Record not found", Toast.LENGTH_SHORT).show();
+                                finish();
+                            }
                         }
-                        
-                        ivRecordImage.setVisibility(View.VISIBLE);
-                        layoutImageRotation.setVisibility(View.VISIBLE);
-                        // Keep track of the original image path
-                        currentPhotoPath = imagePath;
-                    }
+                    });
+                } catch (final Exception e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(EditRecordActivity.this, "Error loading record: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            finish();
+                        }
+                    });
                 }
             }
-        } else {
-            Toast.makeText(EditRecordActivity.this, "Error: Record not found", Toast.LENGTH_SHORT).show();
-            finish();
-        }
+        }).start();
     }
 
     /**
@@ -447,33 +470,57 @@ public class EditRecordActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
 
         if (currentRecord != null) {
+            // Create a final copy of the current record to use in the thread
+            final PatientRecord recordToUpdate = currentRecord;
+            
             // Update record fields
-            currentRecord.setDiagnosis(diagnosis);
-            currentRecord.setPrescription(prescription);
-            currentRecord.setNotes(notes);
-            currentRecord.setDoctorContactNumber(doctorContact);
-            currentRecord.setDoctorName(doctorName);
-            currentRecord.setDoctorAvailability(doctorAvailability);
-            currentRecord.setSeverityScore(severityScore);
+            recordToUpdate.setDiagnosis(diagnosis);
+            recordToUpdate.setPrescription(prescription);
+            recordToUpdate.setNotes(notes);
+            recordToUpdate.setDoctorContactNumber(doctorContact);
+            recordToUpdate.setDoctorName(doctorName);
+            recordToUpdate.setDoctorAvailability(doctorAvailability);
+            recordToUpdate.setSeverityScore(severityScore);
             
             // Update image path if a new image was selected
             if (hasNewImage) {
-                currentRecord.setImagePath(currentPhotoPath);
+                recordToUpdate.setImagePath(currentPhotoPath);
             }
             
             // Update rotation angle
-            currentRecord.setImageRotation(imageRotation);
+            recordToUpdate.setImageRotation(imageRotation);
             
             // Get current timestamp for last updated
             String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
-            currentRecord.setDate(currentDate);
+            recordToUpdate.setDate(currentDate);
             
-            // Update the record in the database
-            database.patientRecordDao().update(currentRecord);
-            
-            progressBar.setVisibility(View.GONE);
-            Toast.makeText(EditRecordActivity.this, "Record updated successfully", Toast.LENGTH_SHORT).show();
-            finish();
+            // Update the record in the database on a background thread
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // Update the record in the database
+                        database.patientRecordDao().update(recordToUpdate);
+                        
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setVisibility(View.GONE);
+                                Toast.makeText(EditRecordActivity.this, "Record updated successfully", Toast.LENGTH_SHORT).show();
+                                finish();
+                            }
+                        });
+                    } catch (final Exception e) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setVisibility(View.GONE);
+                                Toast.makeText(EditRecordActivity.this, "Error updating record: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                }
+            }).start();
         } else {
             progressBar.setVisibility(View.GONE);
             Toast.makeText(EditRecordActivity.this, "Error: Record not found", Toast.LENGTH_SHORT).show();

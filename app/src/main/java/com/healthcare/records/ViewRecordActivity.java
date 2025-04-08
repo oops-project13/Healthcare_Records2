@@ -78,75 +78,97 @@ public class ViewRecordActivity extends AppCompatActivity {
     private void loadRecordData() {
         progressBar.setVisibility(View.VISIBLE);
 
-        final PatientRecord record = database.patientRecordDao().getRecordById(recordId);
-        
-        progressBar.setVisibility(View.GONE);
-        
-        if (record != null) {
-            // Display record data
-            tvPatientName.setText(record.getPatientName());
-            tvHospitalName.setText(record.getHospitalName());
-            tvDiagnosis.setText(record.getDiagnosis());
-            tvPrescription.setText(record.getPrescription().isEmpty() ? "None" : record.getPrescription());
-            tvNotes.setText(record.getNotes().isEmpty() ? "None" : record.getNotes());
-            tvDate.setText(record.getDate());
-            
-            // Display doctor's contact information
-            String doctorContact = record.getDoctorContactNumber();
-            tvDoctorContact.setText(doctorContact != null && !doctorContact.isEmpty() ? doctorContact : "Not available");
-            
-            // Display doctor's name if available
-            String doctorName = record.getDoctorName();
-            tvDoctorName.setText(doctorName != null && !doctorName.isEmpty() ? doctorName : "Not available");
-            
-            // Display doctor's availability if available
-            String doctorAvailability = record.getDoctorAvailability();
-            tvDoctorAvailability.setText(doctorAvailability != null && !doctorAvailability.isEmpty() ? 
-                    doctorAvailability : "Not available");
-            
-            // Display severity score
-            int severityScore = record.getSeverityScore();
-            tvSeverityScore.setText(String.valueOf(severityScore));
-            
-            // Set progress and color for severity bar
-            pbSeverity.setProgress(severityScore);
-            
-            // Change color based on severity
-            if (severityScore <= 3) {
-                pbSeverity.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#4CAF50"))); // Green
-            } else if (severityScore <= 7) {
-                pbSeverity.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#FFC107"))); // Yellow
-            } else {
-                pbSeverity.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#F44336"))); // Red
-            }
-            
-            // Display image if available
-            String imagePath = record.getImagePath();
-            if (imagePath != null && !imagePath.isEmpty()) {
-                File imageFile = new File(imagePath);
-                if (imageFile.exists()) {
-                    Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
-                    if (bitmap != null) {
-                        // Apply rotation if needed
-                        int imageRotation = record.getImageRotation();
-                        if (imageRotation != 0) {
-                            Matrix matrix = new Matrix();
-                            matrix.postRotate(imageRotation);
-                            Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, 
-                                    bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-                            ivRecordImage.setImageBitmap(rotatedBitmap);
-                        } else {
-                            ivRecordImage.setImageBitmap(bitmap);
+        // Use a background thread for database operations
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final PatientRecord record = database.patientRecordDao().getRecordById(recordId);
+                    
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
+                            
+                            if (record != null) {
+                                // Display record data
+                                tvPatientName.setText(record.getPatientName());
+                                tvHospitalName.setText(record.getHospitalName());
+                                tvDiagnosis.setText(record.getDiagnosis());
+                                tvPrescription.setText(record.getPrescription().isEmpty() ? "None" : record.getPrescription());
+                                tvNotes.setText(record.getNotes().isEmpty() ? "None" : record.getNotes());
+                                tvDate.setText(record.getDate());
+                                
+                                // Display doctor's contact information
+                                String doctorContact = record.getDoctorContactNumber();
+                                tvDoctorContact.setText(doctorContact != null && !doctorContact.isEmpty() ? doctorContact : "Not available");
+                                
+                                // Display doctor's name if available
+                                String doctorName = record.getDoctorName();
+                                tvDoctorName.setText(doctorName != null && !doctorName.isEmpty() ? doctorName : "Not available");
+                                
+                                // Display doctor's availability if available
+                                String doctorAvailability = record.getDoctorAvailability();
+                                tvDoctorAvailability.setText(doctorAvailability != null && !doctorAvailability.isEmpty() ? 
+                                        doctorAvailability : "Not available");
+                                
+                                // Display severity score
+                                int severityScore = record.getSeverityScore();
+                                tvSeverityScore.setText(String.valueOf(severityScore));
+                                
+                                // Set progress and color for severity bar
+                                pbSeverity.setProgress(severityScore);
+                                
+                                // Change color based on severity
+                                if (severityScore <= 3) {
+                                    pbSeverity.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#4CAF50"))); // Green
+                                } else if (severityScore <= 7) {
+                                    pbSeverity.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#FFC107"))); // Yellow
+                                } else {
+                                    pbSeverity.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#F44336"))); // Red
+                                }
+                                
+                                // Display image if available
+                                String imagePath = record.getImagePath();
+                                if (imagePath != null && !imagePath.isEmpty()) {
+                                    File imageFile = new File(imagePath);
+                                    if (imageFile.exists()) {
+                                        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+                                        if (bitmap != null) {
+                                            // Apply rotation if needed
+                                            int imageRotation = record.getImageRotation();
+                                            if (imageRotation != 0) {
+                                                Matrix matrix = new Matrix();
+                                                matrix.postRotate(imageRotation);
+                                                Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, 
+                                                        bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                                                ivRecordImage.setImageBitmap(rotatedBitmap);
+                                            } else {
+                                                ivRecordImage.setImageBitmap(bitmap);
+                                            }
+                                            
+                                            ivRecordImage.setVisibility(View.VISIBLE);
+                                        }
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(ViewRecordActivity.this, "Error: Record not found", Toast.LENGTH_SHORT).show();
+                                finish();
+                            }
                         }
-                        
-                        ivRecordImage.setVisibility(View.VISIBLE);
-                    }
+                    });
+                } catch (final Exception e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(ViewRecordActivity.this, "Error loading record: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            finish();
+                        }
+                    });
                 }
             }
-        } else {
-            Toast.makeText(ViewRecordActivity.this, "Error: Record not found", Toast.LENGTH_SHORT).show();
-            finish();
-        }
+        }).start();
     }
 
     @Override

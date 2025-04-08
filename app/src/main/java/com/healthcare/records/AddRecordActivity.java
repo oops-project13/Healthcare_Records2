@@ -365,44 +365,70 @@ public class AddRecordActivity extends AppCompatActivity {
 
         progressBar.setVisibility(View.VISIBLE);
 
-        // Check if patient exists with the given Aadhar
-        User patient = database.userDao().getUserByIdentifier(patientAadhar);
-        
-        if (patient == null || !patient.getRole().equals("patient")) {
-            progressBar.setVisibility(View.GONE);
-            Toast.makeText(AddRecordActivity.this, "No patient found with this Aadhar number", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        // Use a separate thread for database operations to avoid blocking the UI
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // Check if patient exists with the given Aadhar
+                final User patient = database.userDao().getUserByIdentifier(patientAadhar);
+                
+                if (patient == null || !patient.getRole().equals("patient")) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(AddRecordActivity.this, "No patient found with this Aadhar number", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    return;
+                }
 
-        // Get current timestamp
-        String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
-        
-        // Create a new patient record
-        String recordId = UUID.randomUUID().toString();
-        PatientRecord record = new PatientRecord(
-            recordId,
-            patient.getUserId(),
-            patient.getName(),
-            hospitalId,
-            hospitalName,
-            diagnosis,
-            prescription,
-            notes,
-            currentDate,
-            doctorContact,
-            hasImage ? currentPhotoPath : "",
-            severityScore,
-            doctorName,
-            doctorAvailability,
-            imageRotation
-        );
-        
-        // Insert the record into the database
-        database.patientRecordDao().insert(record);
-        
-        progressBar.setVisibility(View.GONE);
-        Toast.makeText(AddRecordActivity.this, "Record added successfully", Toast.LENGTH_SHORT).show();
-        finish();
+                // Get current timestamp
+                String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+                
+                // Create a new patient record
+                String recordId = UUID.randomUUID().toString();
+                PatientRecord record = new PatientRecord(
+                    recordId,
+                    patient.getUserId(),
+                    patient.getName(),
+                    hospitalId,
+                    hospitalName,
+                    diagnosis,
+                    prescription,
+                    notes,
+                    currentDate,
+                    doctorContact,
+                    hasImage ? currentPhotoPath : "",
+                    severityScore,
+                    doctorName,
+                    doctorAvailability,
+                    imageRotation
+                );
+                
+                try {
+                    // Insert the record into the database
+                    database.patientRecordDao().insert(record);
+                    
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(AddRecordActivity.this, "Record added successfully", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                    });
+                } catch (final Exception e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(AddRecordActivity.this, "Error adding record: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            }
+        }).start();
     }
 
     @Override
