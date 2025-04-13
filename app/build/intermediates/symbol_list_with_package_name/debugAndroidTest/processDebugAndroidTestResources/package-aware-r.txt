@@ -1,0 +1,3 @@
+com.healthcare.records.test
+style WhiteBackgroundDialogTheme
+style WhiteBackgroundTheme

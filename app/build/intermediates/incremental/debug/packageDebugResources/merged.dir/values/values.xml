@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorBackground">#FFFFFF</color>
+    <color name="colorDivider">#BDBDBD</color>
+    <color name="colorError">#F44336</color>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorSuccess">#4CAF50</color>
+    <color name="colorText">#212121</color>
+    <color name="colorTextSecondary">#757575</color>
+    <color name="colorWarning">#FFC107</color>
+    <string name="aadhar_number">Aadhar Number</string>
+    <string name="add_patient_record">Add Patient Record</string>
+    <string name="add_record">Add Record</string>
+    <string name="all_patient_records">All Patient Records</string>
+    <string name="app_name">Healthcare Records</string>
+    <string name="app_tagline">Secure Patient Record Management</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="diagnosis">Diagnosis</string>
+    <string name="edit_record">Edit Record</string>
+    <string name="error_fields_required">Please fill all required fields</string>
+    <string name="error_invalid_aadhar">Invalid Aadhar number</string>
+    <string name="error_patient_not_found">No patient found with this Aadhar number</string>
+    <string name="full_name">Full Name</string>
+    <string name="hospital">Hospital</string>
+    <string name="hospital_colon">Hospital:</string>
+    <string name="login">Login</string>
+    <string name="login_prompt">Already have an account? Login</string>
+    <string name="login_subtitle">Login to access your healthcare records</string>
+    <string name="login_title">Welcome Back</string>
+    <string name="logout">Logout</string>
+    <string name="no_records_found">No records found</string>
+    <string name="notes">Notes</string>
+    <string name="notes_optional">Notes (Optional)</string>
+    <string name="password">Password</string>
+    <string name="patient">Patient</string>
+    <string name="patient_aadhar_number">Patient Aadhar Number</string>
+    <string name="patient_colon">Patient:</string>
+    <string name="prescription">Prescription</string>
+    <string name="record_details">Record Details</string>
+    <string name="save_record">Save Record</string>
+    <string name="signup">Sign Up</string>
+    <string name="signup_prompt">Don\'t have an account? Sign Up</string>
+    <string name="signup_subtitle">Sign up to manage healthcare records</string>
+    <string name="signup_title">Create Account</string>
+    <string name="update_record">Update Record</string>
+    <string name="user_type">User Type</string>
+    <string name="your_records">Your Medical Records</string>
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar"/>
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light"/>
+</resources>
